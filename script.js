@@ -6,37 +6,43 @@ let currentUserId = "";
 let currentUserName = "";
 let currentUserCountry = "India";
 
-let addedFriends = []; // Array to hold added friend IDs
-let activeChatTargetId = ""; // Current open chat window user ID
+let addedFriends = []; 
+let activeChatTargetId = ""; 
 
 // ================= 1. LOGIN GATEWAY SYSTEM =================
 function mockLogin(provider) {
-    currentUserId = document.getElementById('edit-username').value.trim();
-    currentUserName = document.getElementById('edit-display-name').value.trim();
-    currentUserCountry = document.getElementById('edit-country').value;
+    const userField = document.getElementById('edit-username');
+    const nameField = document.getElementById('edit-display-name');
+    const countryField = document.getElementById('edit-country');
+
+    if(!userField || !nameField) return;
+
+    currentUserId = userField.value.trim();
+    currentUserName = nameField.value.trim();
+    currentUserCountry = countryField ? countryField.value : "India";
 
     if (!currentUserId || !currentUserName) {
         alert("Please setup your profile username and name first inside fields!");
         return;
     }
 
-    // Syncing names to Profile screen display labels
-    document.getElementById('profile-lbl-name').innerText = currentUserName;
-    document.getElementById('profile-lbl-id').innerText = currentUserId;
+    const lblName = document.getElementById('profile-lbl-name');
+    const lblId = document.getElementById('profile-lbl-id');
+    if(lblName) lblName.innerText = currentUserName;
+    if(lblId) lblId.innerText = currentUserId;
 
-    // Backend Core Matrix Connection Link Trigger
     socket.emit('register_user', {
         userId: currentUserId,
         displayName: currentUserName,
         country: currentUserCountry
     });
 
-    // Toggle screen viewing states (Fixes the screen stuck issue)
-    document.getElementById('login-screen').style.display = "none";
-    document.getElementById('main-app').classList.remove('app-hidden');
-    document.getElementById('main-app').style.display = "block";
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+
+    if(loginScreen) loginScreen.style.display = "none";
+    if(mainApp) mainApp.style.display = "block";
     
-    // Default system landing screen setup
     switchTab('screen-chat', document.querySelectorAll('.nav-btn')[0]);
 }
 
@@ -44,8 +50,7 @@ function mockLogin(provider) {
 function switchTab(screenId, btnElement) {
     const screens = document.querySelectorAll('.screen');
     screens.forEach(screen => {
-        screen.classList.remove('active-screen');
-        screen.style.display = "none"; // Reset display states
+        screen.style.display = "none"; 
     });
 
     const buttons = document.querySelectorAll('.nav-btn');
@@ -53,12 +58,10 @@ function switchTab(screenId, btnElement) {
 
     const TargetScreen = document.getElementById(screenId);
     if(TargetScreen) {
-        TargetScreen.classList.add('active-screen');
-        TargetScreen.style.display = "block"; // Show selected tab
+        TargetScreen.style.display = "block"; 
     }
     if(btnElement) btnElement.classList.add('active-btn');
 
-    // Action Header modifiers conditional adjustments
     const momentAddBtn = document.getElementById('add-moment-btn');
     const settingsBtn = document.getElementById('setting-profile-btn');
     const backBtn = document.getElementById('back-chat-btn');
@@ -77,13 +80,11 @@ function switchTab(screenId, btnElement) {
 function openScreen(screenId) {
     const screens = document.querySelectorAll('.screen');
     screens.forEach(screen => {
-        screen.classList.remove('active-screen');
         screen.style.display = "none";
     });
     
     const target = document.getElementById(screenId);
     if(target) {
-        target.classList.add('active-screen');
         target.style.display = "block";
     }
 }
@@ -159,7 +160,7 @@ function openChatBox(friendId) {
     if(backBtn) backBtn.classList.remove('hidden');
     
     const globalNav = document.getElementById('app-global-nav');
-    if(globalNav) globalNav.classList.add('app-hidden');
+    if(globalNav) globalNav.style.display = "none";
     
     const msgBox = document.getElementById('chat-messages-box');
     if(msgBox) msgBox.innerHTML = ""; 
@@ -170,12 +171,14 @@ function closeChatBox() {
     activeChatTargetId = "";
     document.getElementById('main-header-title').innerText = "STARDUST CHAT";
     const globalNav = document.getElementById('app-global-nav');
-    if(globalNav) globalNav.classList.remove('app-hidden');
+    if(globalNav) globalNav.style.display = "flex";
     switchTab('screen-chat', document.querySelectorAll('.nav-btn')[0]);
 }
 
 function dispatchMessage() {
-    const msgText = document.getElementById('chat-type-input').value.trim();
+    const msgInput = document.getElementById('chat-type-input');
+    if(!msgInput) return;
+    const msgText = msgInput.value.trim();
     if(!msgText || !activeChatTargetId) return;
 
     const payload = {
@@ -190,7 +193,7 @@ function dispatchMessage() {
     const lastMsgPointer = document.getElementById(`last-msg-${activeChatTargetId}`);
     if(lastMsgPointer) lastMsgPointer.innerText = "You: " + msgText;
 
-    document.getElementById('chat-type-input').value = "";
+    msgInput.value = "";
 }
 
 function appendVisualMessage(sender, text, type) {
@@ -240,7 +243,9 @@ socket.on('receive_private_message', (data) => {
 
 // ================= 4. MOMENTS PUBLISH & TIMELINE EVENT =================
 function publishPost() {
-    const caption = document.getElementById('post-caption').value.trim();
+    const captionInput = document.getElementById('post-caption');
+    if(!captionInput) return;
+    const caption = captionInput.value.trim();
     if (!caption) return alert("Write a description message first!");
 
     const payload = {
@@ -251,7 +256,7 @@ function publishPost() {
     };
 
     socket.emit('publish_moment', payload);
-    document.getElementById('post-caption').value = "";
+    captionInput.value = "";
     backToMoments();
 }
 
