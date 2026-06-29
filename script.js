@@ -31,9 +31,10 @@ function mockLogin(provider) {
         country: currentUserCountry
     });
 
-    // Toggle screen viewing states
-    document.getElementById('login-screen').classList.add('app-hidden');
+    // Toggle screen viewing states (Fixes the screen stuck issue)
+    document.getElementById('login-screen').style.display = "none";
     document.getElementById('main-app').classList.remove('app-hidden');
+    document.getElementById('main-app').style.display = "block";
     
     // Default system landing screen setup
     switchTab('screen-chat', document.querySelectorAll('.nav-btn')[0]);
@@ -42,7 +43,10 @@ function mockLogin(provider) {
 // ================= 2. CORE NAVIGATION CONTROLLER =================
 function switchTab(screenId, btnElement) {
     const screens = document.querySelectorAll('.screen');
-    screens.forEach(screen => screen.classList.remove('active-screen'));
+    screens.forEach(screen => {
+        screen.classList.remove('active-screen');
+        screen.style.display = "none"; // Reset display states
+    });
 
     const buttons = document.querySelectorAll('.nav-btn');
     buttons.forEach(btn => btn.classList.remove('active-btn'));
@@ -50,6 +54,7 @@ function switchTab(screenId, btnElement) {
     const TargetScreen = document.getElementById(screenId);
     if(TargetScreen) {
         TargetScreen.classList.add('active-screen');
+        TargetScreen.style.display = "block"; // Show selected tab
     }
     if(btnElement) btnElement.classList.add('active-btn');
 
@@ -58,23 +63,29 @@ function switchTab(screenId, btnElement) {
     const settingsBtn = document.getElementById('setting-profile-btn');
     const backBtn = document.getElementById('back-chat-btn');
 
-    momentAddBtn.classList.add('hidden');
-    settingsBtn.classList.add('hidden');
-    backBtn.classList.add('hidden');
+    if(momentAddBtn) momentAddBtn.classList.add('hidden');
+    if(settingsBtn) settingsBtn.classList.add('hidden');
+    if(backBtn) backBtn.classList.add('hidden');
 
-    if (screenId === 'screen-moment') {
+    if (screenId === 'screen-moment' && momentAddBtn) {
         momentAddBtn.classList.remove('hidden');
-    } else if (screenId === 'screen-profile') {
+    } else if (screenId === 'screen-profile' && settingsBtn) {
         settingsBtn.classList.remove('hidden');
     }
 }
 
 function openScreen(screenId) {
     const screens = document.querySelectorAll('.screen');
-    screens.forEach(screen => screen.classList.remove('active-screen'));
+    screens.forEach(screen => {
+        screen.classList.remove('active-screen');
+        screen.style.display = "none";
+    });
     
     const target = document.getElementById(screenId);
-    if(target) target.classList.add('active-screen');
+    if(target) {
+        target.classList.add('active-screen');
+        target.style.display = "block";
+    }
 }
 
 function backToMoments() {
@@ -88,11 +99,9 @@ function searchAndAddFriend() {
     if(targetId === currentUserId) return alert("You cannot add yourself.");
     if(addedFriends.includes(targetId)) return alert("User already added to your contacts.");
 
-    // Add locally and emit to server
     addedFriends.push(targetId);
     socket.emit('send_friend_request', { senderId: currentUserId, targetUserId: targetId });
 
-    // Refresh UI lists
     renderContactsList();
     renderChatsList();
     document.getElementById('search-friend-id').value = "";
@@ -101,6 +110,7 @@ function searchAndAddFriend() {
 
 function renderContactsList() {
     const container = document.getElementById('contacts-list-container');
+    if(!container) return;
     container.innerHTML = "";
     if(addedFriends.length === 0) return;
 
@@ -119,6 +129,7 @@ function renderContactsList() {
 
 function renderChatsList() {
     const container = document.getElementById('chats-list-container');
+    if(!container) return;
     container.innerHTML = "";
     if(addedFriends.length === 0) {
         container.innerHTML = `<p style="text-align:center; color:#888; margin-top:20px;">No active chats. Add friends to start talking.</p>`;
@@ -143,19 +154,23 @@ function renderChatsList() {
 function openChatBox(friendId) {
     activeChatTargetId = friendId;
     
-    // UI adjustment for dedicated chat view
     document.getElementById('main-header-title').innerText = "Chatting with " + friendId;
-    document.getElementById('back-chat-btn').classList.remove('hidden');
-    document.getElementById('app-global-nav').classList.add('app-hidden');
+    const backBtn = document.getElementById('back-chat-btn');
+    if(backBtn) backBtn.classList.remove('hidden');
     
-    document.getElementById('chat-messages-box').innerHTML = ""; // Clear log view
+    const globalNav = document.getElementById('app-global-nav');
+    if(globalNav) globalNav.classList.add('app-hidden');
+    
+    const msgBox = document.getElementById('chat-messages-box');
+    if(msgBox) msgBox.innerHTML = ""; 
     openScreen('screen-chat-window');
 }
 
 function closeChatBox() {
     activeChatTargetId = "";
     document.getElementById('main-header-title').innerText = "STARDUST CHAT";
-    document.getElementById('app-global-nav').classList.remove('app-hidden');
+    const globalNav = document.getElementById('app-global-nav');
+    if(globalNav) globalNav.classList.remove('app-hidden');
     switchTab('screen-chat', document.querySelectorAll('.nav-btn')[0]);
 }
 
@@ -169,13 +184,9 @@ function dispatchMessage() {
         message: msgText
     };
 
-    // Emit to Render backend server
     socket.emit('send_private_message', payload);
-
-    // Show on my screen immediately
     appendVisualMessage(currentUserId, msgText, "outgoing");
     
-    // Update last message pointer text in menu list safely
     const lastMsgPointer = document.getElementById(`last-msg-${activeChatTargetId}`);
     if(lastMsgPointer) lastMsgPointer.innerText = "You: " + msgText;
 
@@ -184,6 +195,7 @@ function dispatchMessage() {
 
 function appendVisualMessage(sender, text, type) {
     const msgBox = document.getElementById('chat-messages-box');
+    if(!msgBox) return;
     const container = document.createElement('div');
     container.style.margin = "10px 0";
     container.style.display = "flex";
@@ -201,22 +213,20 @@ function appendVisualMessage(sender, text, type) {
 
     container.appendChild(bubble);
     msgBox.appendChild(container);
-    msgBox.scrollTop = msgBox.scrollHeight; // Auto scroll down
+    msgBox.scrollTop = msgBox.scrollHeight; 
 }
 
-// Render server responds when a private text message arrives
 socket.on('receive_private_message', (data) => {
-    // If chatting with this person right now, insert into view box directly
     if(activeChatTargetId === data.senderId) {
         appendVisualMessage(data.senderId, data.message, "incoming");
     } else {
-        // Increment notification badge inside bottom bar matrix layout if tab is hidden
         const badge = document.getElementById('badge-nav-chat');
-        let currentCount = parseInt(badge.innerText) || 0;
-        badge.innerText = currentCount + 1;
-        badge.classList.remove('hidden');
+        if(badge) {
+            let currentCount = parseInt(badge.innerText) || 0;
+            badge.innerText = currentCount + 1;
+            badge.classList.remove('hidden');
+        }
         
-        // Auto add to friends list if a new unknown user pings
         if(!addedFriends.includes(data.senderId)){
             addedFriends.push(data.senderId);
             renderContactsList();
@@ -259,10 +269,13 @@ socket.on('new_moment_feed_update', (momentData) => {
                 <span class="post-time">${momentData.timestamp}</span>
             </div>
         </div>
-        <p class="post-text">${momentData.caption}</p>
+        <div style="padding: 10px 0;">
+            <p class="post-text">${momentData.caption}</p>
+        </div>
     `;
     timeline.insertBefore(card, timeline.firstChild);
-    document.getElementById('badge-nav-moment').classList.remove('hidden');
+    const momentBadge = document.getElementById('badge-nav-moment');
+    if(momentBadge) momentBadge.classList.remove('hidden');
 });
 
 // ================= 5. INTERACTION SYSTEMS UI CONTROLS =================
