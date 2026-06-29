@@ -8,94 +8,206 @@
 </head>
 <body>
 
-    <header class="app-header">
-        <h1 id="app-title">STARDUST CHAT</h1>
-    </header>
-
-    <main class="app-content">
-        
-        <section id="screen-chat" class="screen active">
-            <h2>Chats</h2>
-            <div class="chat-list">
-                <div class="chat-item">
-                    <div class="avatar"></div>
-                    <div class="chat-info">
-                        <h3>Zhang Wei</h3>
-                        <p>Hey! Are you there?</p>
-                    </div>
-                    <span class="badge">3</span>
-                </div>
+    <div id="login-screen" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
             </div>
-        </section>
-
-        <section id="screen-contact" class="screen">
-            <h2>Contacts</h2>
+            <h1 class="auth-title">STARDUST CHAT</h1>
+            <p class="auth-subtitle">Connect globally, safely.</p>
             
-            <div class="add-friend-box">
-                <input type="text" id="friend-id-input" placeholder="Enter Unique User ID...">
-                <button id="add-friend-btn">Add Friend</button>
+            <div class="auth-buttons">
+                <button class="auth-btn btn-google" onclick="mockLogin('Google User')">
+                    Continue with Google
+                </button>
+                <button class="auth-btn btn-wechat" onclick="mockLogin('WeChat User')">
+                    Continue with WeChat
+                </button>
             </div>
+            
+            <div class="auth-footer">Made by Zishan</div>
+        </div>
+    </div>
 
-            <div class="contact-list">
-                <div class="contact-item">
-                    <div class="avatar"></div>
-                    <h3>Li Na (ID: star_992)</h3>
+    <div id="main-app" class="app-hidden">
+        
+        <header class="app-header">
+            <h1 id="app-title">STARDUST CHAT</h1>
+            <div id="header-actions">
+                <button id="add-moment-btn" class="header-icon-btn hidden" onclick="openScreen('screen-create-moment')">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+                <button id="setting-profile-btn" class="header-icon-btn hidden" onclick="alert('Settings Opended!')">
+                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-content">
+            
+            <section id="screen-chat" class="screen active-screen">
+                <div class="screen-title-area">Chats</div>
+                <div class="chat-list">
+                    <div class="chat-row">
+                        <div class="avatar-circle"></div>
+                        <div class="chat-details">
+                            <div class="chat-row-top">
+                                <h4>Zhang Wei</h4>
+                                <span class="chat-time">5:27 PM</span>
+                            </div>
+                            <p>Hey! Are you there?</p>
+                        </div>
+                        <span class="row-badge">3</span>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="screen-moment" class="screen">
-            <h2>Moments</h2>
-            <div class="create-post">
-                <textarea placeholder="Share your moment with contacts..."></textarea>
-                <button>Post</button>
-            </div>
-            <div class="moments-feed">
-                <div class="moment-card">
-                    <h4>Li Na</h4>
-                    <p>Beautiful day in Shanghai! 🌸</p>
+            <section id="screen-contact" class="screen">
+                <div class="screen-title-area">Contacts</div>
+                <div class="premium-search-bar">
+                    <svg viewBox="0 0 24 24" class="search-icon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="find-id" placeholder="Search unique user ID...">
+                    <button class="premium-add-btn" onclick="alert('Friend request sent!')">Add</button>
                 </div>
-            </div>
-        </section>
 
-        <section id="screen-profile" class="screen">
-            <h2>My Profile</h2>
-            <div class="profile-card">
-                <div class="avatar large"></div>
-                <h3 id="user-display-name">Your Name</h3>
-                <p>Unique ID: <strong id="user-unique-id">stardust_4201</strong></p>
+                <div class="contact-section-label">All Contacts</div>
+                <div class="contact-list-premium">
+                    <div class="contact-row-item">
+                        <div class="avatar-circle"></div>
+                        <div class="contact-meta">
+                            <h4>Li Na</h4>
+                            <span>ID: star_992</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="screen-moment" class="screen">
+                <div class="screen-title-area">Moments</div>
+                <div class="moments-timeline">
+                    <div class="moment-premium-card">
+                        <div class="moment-author">
+                            <div class="avatar-circle small"></div>
+                            <div>
+                                <h5>Li Na</h5>
+                                <span class="post-time">2 hours ago</span>
+                            </div>
+                        </div>
+                        <p class="post-text">Beautiful day in Shanghai! 🌸</p>
+                        <div class="post-media-container" onclick="openMediaFullscreen('https://images.unsplash.com/photo-1540655037529-dec987208707?w=500', 'image')">
+                            <img src="https://images.unsplash.com/photo-1540655037529-dec987208707?w=500" alt="Shanghai">
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn" onclick="toggleLike(this)">
+                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span class="like-count">12</span>
+                            </button>
+                            <button class="action-btn" onclick="toggleCommentSection(this)">
+                                <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                                <span>Comments</span>
+                            </button>
+                        </div>
+                        <div class="comment-dropdown-area hidden">
+                            <div class="comment-item"><strong>Zhang:</strong> Wow amazing scene!</div>
+                            <div class="comment-input-row">
+                                <input type="text" placeholder="Write a comment...">
+                                <button>Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="screen-create-moment" class="screen">
+                <div class="back-nav" onclick="backToMoments()">← Back to Feed</div>
+                <div class="create-post-container">
+                    <textarea id="post-caption" placeholder="What's on your mind? Only contacts can see..."></textarea>
+                    <div class="upload-options">
+                        <label class="media-upload-btn">
+                            <input type="file" id="media-file" accept="image/*,video/*" onchange="previewMedia(this)">
+                            Add Photo / Video
+                        </label>
+                    </div>
+                    <div id="media-preview-container"></div>
+                    <button class="publish-btn" onclick="publishPost()">Publish Moment</button>
+                </div>
+            </section>
+
+            <section id="screen-profile" class="screen">
+                <div class="screen-title-area">Profile Settings</div>
                 
-                <div class="login-system">
-                    <h4>Connect Account / Login</h4>
-                    <button class="login-btn google-btn">Sign in with Google</button>
-                    <button class="login-btn wechat-btn">Sign in with WeChat</button>
+                <div class="premium-profile-editor">
+                    <div class="avatar-circle large"></div>
+                    <div class="editor-fields">
+                        <label>Display Name</label>
+                        <input type="text" id="edit-display-name" value="Zishan">
+                        
+                        <label>Username (Unique ID)</label>
+                        <input type="text" id="edit-username" value="stardust_4201">
+                        
+                        <label>Country Location</label>
+                        <select id="edit-country">
+                            <option value="India">India 🇮🇳</option>
+                            <option value="China">China 🇨🇳</option>
+                            <option value="United States">United States 🇺🇸</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </section>
 
-    </main>
+                <div class="profile-feature-list">
+                    <div class="feature-item">
+                        <span>Account Safety</span>
+                        <span class="arrow">›</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>Privacy Policy</span>
+                        <span class="arrow">›</span>
+                    </div>
+                    <div class="feature-item" onclick="logout()">
+                        <span style="color: #ff3b30;">Log Out</span>
+                    </div>
+                </div>
+            </section>
 
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="switchScreen('screen-chat', this)">
-            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
-            <span>Chat</span>
-        </button>
+        </main>
 
-        <button class="nav-btn" onclick="switchScreen('screen-contact', this)">
-            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-            <span>Contact</span>
-        </button>
+        <div id="fullscreen-media-overlay" class="media-overlay hidden" onclick="closeMediaFullscreen()">
+            <div id="overlay-content-holder"></div>
+            <div class="overlay-controls">Scroll down for full metrics</div>
+        </div>
 
-        <button class="nav-btn" onclick="switchScreen('screen-moment', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span>Moment</span>
-        </button>
+        <nav class="bottom-nav">
+            <button class="nav-btn active-btn" onclick="switchTab('screen-chat', this)">
+                <div class="svg-wrapper">
+                    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                    <span id="badge-nav-chat" class="nav-counter">3</span>
+                </div>
+                <span>Chat</span>
+            </button>
 
-        <button class="nav-btn" onclick="switchScreen('screen-profile', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.33-8 4v2h16v-2c0-2.67-5.33-4-8-4z"/></svg>
-            <span>Profile</span>
-        </button>
-    </nav>
+            <button class="nav-btn" onclick="switchTab('screen-contact', this)">
+                <div class="svg-wrapper">
+                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span id="badge-nav-contact" class="nav-counter">1</span>
+                </div>
+                <span>Contact</span>
+            </button>
+
+            <button class="nav-btn" onclick="switchTab('screen-moment', this)">
+                <div class="svg-wrapper">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <span>Moment</span>
+            </button>
+
+            <button class="nav-btn" onclick="switchTab('screen-profile', this)">
+                <div class="svg-wrapper">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.33-8 4v2h16v-2c0-2.67-5.33-4-8-4z"/></svg>
+                </div>
+                <span>Profile</span>
+            </button>
+        </nav>
+    </div>
 
     <script src="script.js"></script>
 </body>
