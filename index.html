@@ -45,8 +45,9 @@
 
     <div id="main-app" class="app-hidden">
         <header class="app-header">
-            <h1 class="brand-title">STARDUST CHAT</h1>
+            <h1 class="brand-title" id="main-header-title">STARDUST CHAT</h1>
             <div class="header-actions">
+                <button id="back-chat-btn" class="header-icon-btn hidden" onclick="closeChatBox()">Back</button>
                 <button id="add-moment-btn" class="header-icon-btn hidden" onclick="openScreen('screen-create-moment')">+</button>
                 <button id="setting-profile-btn" class="header-icon-btn hidden" onclick="logout()">Logout</button>
             </div>
@@ -56,15 +57,17 @@
             
             <section id="screen-chat" class="screen">
                 <h2 class="section-title">Chats</h2>
-                <div class="chats-list">
-                    <div class="chat-row" onclick="alert('Chat box opening logic triggers here!')">
-                        <div class="avatar-circle"></div>
-                        <div class="chat-meta">
-                            <h4>Zhang Wei</h4>
-                            <p>Hey! Are you there?</p>
-                        </div>
-                        <span class="badge-alert">3</span>
+                <div id="chats-list-container" class="chats-list">
+                    <p style="text-align:center; color:#888; margin-top:20px;">No active chats. Add friends to start talking.</p>
+                </div>
+            </section>
+
+            <section id="screen-chat-window" class="screen">
+                <div class="chat-messages-display" id="chat-messages-box">
                     </div>
+                <div class="chat-input-footer-row">
+                    <input type="text" id="chat-type-input" placeholder="Type a professional message...">
+                    <button class="btn-send-message" onclick="dispatchMessage()">Send</button>
                 </div>
             </section>
 
@@ -72,16 +75,10 @@
                 <h2 class="section-title">Contacts</h2>
                 <div class="search-bar-row">
                     <input type="text" id="search-friend-id" placeholder="Enter Unique User ID...">
-                    <button class="btn-action" onclick="alert('Friend request dispatched!')">Add Friend</button>
+                    <button class="btn-action" onclick="searchAndAddFriend()">Add Friend</button>
                 </div>
-                <div class="contacts-list">
-                    <div class="contact-row">
-                        <div class="avatar-circle"></div>
-                        <div class="contact-meta">
-                            <h4>Li Na (ID: star_992)</h4>
-                        </div>
+                <div id="contacts-list-container" class="contacts-list">
                     </div>
-                </div>
             </section>
 
             <section id="screen-moment" class="screen">
@@ -125,7 +122,7 @@
 
         </main>
 
-        <nav class="app-bottom-nav">
+        <nav id="app-global-nav" class="app-bottom-nav">
             <button class="nav-btn active-btn" onclick="switchTab('screen-chat', this)">
                 <span class="nav-text">Chat</span>
             </button>
