@@ -1,0 +1,192 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f7f7f7;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Header styling */
+.app-header {
+    background-color: #07C160; /* WeChat Green */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Main Screen Content */
+.app-content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #ffffff; /* White background */
+    padding: 15px;
+    margin-bottom: 60px; /* Space for nav bar */
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #07C160;
+}
+
+/* Unseen Chat Badge */
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    background-color: #ddd;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+.avatar.large {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px auto;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.badge {
+    background-color: #ff3b30;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Add Friend Section inside Contacts */
+.add-friend-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-friend-box input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.add-friend-box button, .create-post button {
+    background-color: #07C160;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Moments Screen */
+.create-post textarea {
+    width: 100%;
+    height: 60px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    resize: none;
+}
+
+.moment-card {
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 4px solid #07C160;
+}
+
+/* Login Buttons inside Profile */
+.profile-card {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.login-system {
+    margin-top: 30px;
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.login-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.google-btn { background-color: #4285F4; color: white; }
+.wechat-btn { background-color: #07C160; color: white; }
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #f7f7f7;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #7c7c7c;
+    cursor: pointer;
+    font-size: 11px;
+    width: 25%;
+}
+
+.nav-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: #7c7c7c;
+    margin-bottom: 2px;
+}
+
+/* Active Button State (Green color) */
+.nav-btn.active {
+    color: #07C160;
+}
+
+.nav-btn.active svg {
+    fill: #07C160;
+}
