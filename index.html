@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stardust - Ultimate Edition</title>
+    <title>Stardust - Professional Node</title>
     <link rel="stylesheet" href="./style.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -19,19 +19,18 @@
                     <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2e7d32" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </div>
                 <h2>STARDUST</h2>
-                <p>Create your permanent localized node</p>
+                <p>Verify identity to establish connection</p>
             </div>
             
             <div class="auth-action-area">
-                <div class="form-input-element">
-                    <label>Choose Unique UID (No spaces)</label>
-                    <input type="text" id="login-uid-input" placeholder="e.g., rahul99">
-                </div>
-                <div class="form-input-element">
-                    <label>Display Name</label>
-                    <input type="text" id="login-name-input" placeholder="e.g., Rahul Verma">
-                </div>
-                <button class="master-action-btn" onclick="executePermanentLogin()">Login / Register</button>
+                <button class="oauth-btn google-auth" onclick="executeMockOAuth('Google')">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/copy_of_v6_24dp.png" alt="Google">
+                    <span>Continue with Google</span>
+                </button>
+                <button class="oauth-btn wechat-auth" onclick="executeMockOAuth('WeChat')">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/WeChat_logo.svg" alt="WeChat">
+                    <span>Connect via WeChat</span>
+                </button>
             </div>
         </div>
     </div>
@@ -77,22 +76,25 @@
 
             <section id="screen-chat-window" class="app-tab-panel" style="display: none;">
                 <div id="reply-context-banner" class="reply-preview-bar hidden">
-                    <span id="reply-banner-text">Replying to...</span>
+                    <span id="reply-banner-text">Replying...</span>
                     <button onclick="cancelReplyContext()">✕</button>
                 </div>
                 <div class="conversation-vessel" id="chat-messages-box"></div>
+                
                 <div class="interactive-input-row">
                     <input type="text" id="chat-type-input" placeholder="Type a message...">
-                    <button class="emoji-toggle-btn" onclick="toggleEmojiTray()">🌟</button>
+                    <button class="emoji-toggle-btn" onclick="toggleEmojiTray()">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                    </button>
                     <button class="send-dispatch-btn" onclick="dispatchMessage()">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </div>
+
                 <div id="app-emoji-tray" class="emoji-tray-drawer hidden">
-                    <span onclick="insertEmoji('🔥')">🔥</span><span onclick="insertEmoji('💎')">💎</span>
-                    <span onclick="insertEmoji('👑')">👑</span><span onclick="insertEmoji('⚡')">⚡</span>
-                    <span onclick="insertEmoji('🍀')">🍀</span><span onclick="insertEmoji('🪐')">🪐</span>
-                    <span onclick="insertEmoji('🧩')">🧩</span><span onclick="insertEmoji('🛸')">🛸</span>
+                    <div class="svg-tray-item" onclick="insertVectorAsset('✨')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2e7d32" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+                    <div class="svg-tray-item" onclick="insertVectorAsset('👍')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2e7d32" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></div>
+                    <div class="svg-tray-item" onclick="insertVectorAsset('❤️')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ef4444" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div>
                 </div>
             </section>
 
@@ -102,7 +104,7 @@
                     <h4 id="query-card-name">User Node</h4>
                     <p id="query-card-uid">UID: unknown</p>
                     <div class="action-btn-row">
-                        <button class="action-core-btn accent-green" onclick="executeAddFriendFromQuery()">Send Friend Request</button>
+                        <button class="action-core-btn accent-green" onclick="executeAddFriendFromQuery()">Send Request</button>
                     </div>
                 </div>
 
@@ -119,10 +121,11 @@
 
             <section id="screen-create-moment" class="app-tab-panel" style="display: none;">
                 <div class="composer-vessel">
-                    <textarea id="post-caption" placeholder="Share anything..." rows="4"></textarea>
+                    <textarea id="post-caption" placeholder="Write caption details..."></textarea>
                     <div id="moment-media-preview" class="media-preview-box hidden"></div>
                     <div class="media-attach-trigger" onclick="document.getElementById('hidden-moment-media').click()">
-                        📎 Attach Photo / Video
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:middle;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        Attach Photo / Video
                     </div>
                     <div class="composer-button-group">
                         <button class="btn-confirm-post" onclick="publishPost()">Post</button>
@@ -147,15 +150,15 @@
 
                     <div id="profile-edit-submodal" class="profile-editor-drawer hidden">
                         <div class="form-input-element">
-                            <label>Change Unique UID</label>
+                            <label>Update Unique UID</label>
                             <input type="text" id="input-edit-uid">
                         </div>
                         <div class="form-input-element">
-                            <label>Change Name</label>
+                            <label>Update Name</label>
                             <input type="text" id="input-edit-displayname">
                         </div>
                         <div class="form-input-element">
-                            <label>Update Country</label>
+                            <label>Select Region</label>
                             <select id="input-edit-country"></select>
                         </div>
                         <button class="save-profile-btn" onclick="saveProfileChanges()">Save Modifications</button>
@@ -164,71 +167,75 @@
                     <div class="personal-qr-wrapper-card">
                         <h4>My Identity Matrix QR</h4>
                         <div id="qrcode-display-canvas"></div>
-                        <button class="save-qr-gallery-btn" onclick="downloadQRCodeToGallery()">⬇ Save QR Code to Gallery</button>
+                        <button class="save-qr-gallery-btn" onclick="downloadQRCodeToGallery()">Save QR to Downloads/Gallery</button>
                     </div>
                 </div>
             </section>
 
             <section id="screen-settings-page" class="app-tab-panel" style="display: none;">
                 <div class="settings-view-list">
-                    <div class="setting-item-row" onclick="alert('Profile configurations linked to primary block modification icon.')">
+                    <div class="setting-item-row" onclick="alert('Linked to primary profile view configuration drawers.')">
                         <h4>Edit Profile Options</h4>
-                        <p>Manage node headers, avatars and geographical sectors.</p>
+                        <p>Change unique identifiers, avatar assets and tags.</p>
                     </div>
                     <div class="setting-item-row">
                         <div style="flex:1;">
                             <h4>In-App Notifications</h4>
-                            <p>Toggle systemic alerts and sound effects logs.</p>
+                            <p>Toggle audio logs transmission triggers.</p>
                         </div>
                         <input type="checkbox" id="setting-toggle-notif" checked style="width:20px; height:20px;">
                     </div>
-                    <div class="setting-item-row" onclick="alert('Support System: Raise queries directly at support@stardust.io')">
+                    <div class="setting-item-row" onclick="alert('Support Matrix: Raise ticket logs directly at help@stardust.io')">
                         <h4>Customer Support Helpdesk</h4>
-                        <p>Troubleshoot channel errors or persistent database issues.</p>
+                        <p>Troubleshoot channel data packets issues.</p>
                     </div>
                     <div class="setting-item-row" onclick="triggerLogout()">
-                        <h4 style="color:#ef4444;">Disconnect & De-authorize Node</h4>
-                        <p>Wipe dynamic cryptographic session keys from active platform.</p>
+                        <h4 style="color:#ef4444;">Disconnect & Wipe Node Data</h4>
+                        <p>Purge localized cached cryptographic storage files.</p>
                     </div>
                 </div>
-                <button class="save-profile-btn" style="margin-top:20px; background:#667085" onclick="switchTab('screen-profile', null)">Back to Profile</button>
+                <button class="save-profile-btn" style="margin-top:20px; background:#667085" onclick="switchTab('screen-profile', null)">Back</button>
             </section>
 
         </main>
 
         <div id="message-longpress-modal" class="longpress-context-backdrop hidden" onclick="closeLongPressModal()">
             <div class="context-action-sheet" onclick="event.stopPropagation()">
-                <div id="opt-reply" class="sheet-item" onclick="handleContextAction('reply')">Reply Message</div>
-                <div id="opt-copy" class="sheet-item" onclick="handleContextAction('copy')">Copy Text</div>
-                <div id="opt-react" class="sheet-item" onclick="handleContextAction('react')">React Flame (🔥)</div>
+                <div id="opt-reply" class="sheet-item" onclick="handleContextAction('reply')">Reply</div>
+                <div id="opt-copy" class="sheet-item" onclick="handleContextAction('copy')">Copy</div>
+                <div id="opt-react" class="sheet-item" onclick="handleContextAction('react')">React Flame</div>
                 <div id="opt-edit" class="sheet-item hidden" onclick="handleContextAction('edit')">Edit Message</div>
             </div>
         </div>
 
         <nav class="fixed-dock-navigation">
             <button class="dock-nav-item active-dock-tab" onclick="switchTab('screen-chat', this)">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span class="nav-label-text">Chats</span>
             </button>
             <button class="dock-nav-item" onclick="switchTab('screen-contact', this)">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                 <span id="badge-nav-contact" class="numeric-badge-alert hidden">0</span>
+                <span class="nav-label-text">Contacts</span>
             </button>
             <button class="dock-nav-item" onclick="switchTab('screen-moment', this)">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 6 12 12 16 14"></polygon></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 6 12 12 16 14"></polygon></svg>
                 <span id="badge-nav-moment" class="badge-alert-dot hidden"></span>
+                <span class="nav-label-text">Moments</span>
             </button>
             <button class="dock-nav-item" onclick="switchTab('screen-profile', this)">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 <span id="badge-nav-chat" class="numeric-badge-alert hidden">0</span>
+                <span class="nav-label-text">Profile</span>
             </button>
         </nav>
     </div>
 
     <div id="scan-option-modal" class="longpress-context-backdrop hidden" onclick="this.classList.add('hidden')">
         <div class="context-action-sheet" onclick="event.stopPropagation()">
-            <h4 style="padding:14px; text-align:center; font-size:14px; border-bottom:1px solid #e4e7ec;">Select QR Input Channel</h4>
-            <div class="sheet-item" onclick="triggerHardwareScanner('camera')">Launch Camera Interface</div>
-            <div class="sheet-item" onclick="triggerHardwareScanner('gallery')">Select from Device Gallery</div>
+            <h4 style="padding:14px; text-align:center; font-size:14px; border-bottom:1px solid #e4e7ec;">Select Source</h4>
+            <div class="sheet-item" onclick="triggerHardwareScanner('camera')">Camera</div>
+            <div class="sheet-item" onclick="triggerHardwareScanner('gallery')">Gallery</div>
         </div>
     </div>
 
