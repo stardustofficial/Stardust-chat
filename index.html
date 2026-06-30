@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stardust - White & Green Edition</title>
+    <title>Stardust - Ultimate Edition</title>
     <link rel="stylesheet" href="./style.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+
+    <audio id="notif-sound-msg" src="https://assets.mixkit.co/active_storage/sfx/2357/2357-84.wav" preload="auto"></audio>
 
     <div id="login-screen" class="screen-wrapper">
         <div class="login-card">
@@ -17,25 +19,19 @@
                     <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2e7d32" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </div>
                 <h2>STARDUST</h2>
-                <p>Simple. Secure. Instant.</p>
+                <p>Create your permanent localized node</p>
             </div>
             
             <div class="auth-action-area">
-                <div id="auth-status-loader" class="loader-container hidden">
-                    <div class="spinner"></div>
-                    <p id="loader-text">Configuring personal matrix...</p>
+                <div class="form-input-element">
+                    <label>Choose Unique UID (No spaces)</label>
+                    <input type="text" id="login-uid-input" placeholder="e.g., rahul99">
                 </div>
-                
-                <div id="oauth-trigger-box" class="oauth-cluster">
-                    <button class="auth-btn google-auth" onclick="initiateAuthorization('Google')">
-                        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.945 11.945 0 0 0 12 0C7.355 0 3.303 2.503 1.115 6.206l4.15 3.56z"/><path fill="#4285F4" d="M23.49 12.275c0-.825-.075-1.625-.213-2.4H12v4.56h6.46a5.534 5.534 0 0 1-2.4 3.63v3.015h3.877c2.269-2.09 3.553-5.17 3.553-8.805z"/><path fill="#FBBC05" d="M5.266 14.235L1.115 17.794A11.942 11.942 0 0 0 12 24c3.24 0 5.961-1.076 7.95-2.92l-3.877-3.015a7.11 7.11 0 0 1-4.073 1.126 7.077 7.077 0 0 1-6.734-4.956z"/><path fill="#34A853" d="M12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.945 11.945 0 0 0 12 0C7.355 0 3.303 2.503 1.115 6.206l4.15 3.56z"/></svg>
-                        <span>Sign In with Google</span>
-                    </button>
-                    <button class="auth-btn wechat-auth" onclick="initiateAuthorization('WeChat')">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="#2e7d32"><path d="M8.332 11.666a1.166 1.166 0 1 0 0-2.332 1.166 1.166 0 0 0 0 2.332zm7.336 0a1.166 1.166 0 1 0 0-2.332 1.166 1.166 0 0 0 0 2.332zM12 2C5.925 2 1 6.03 1 11c0 2.935 1.745 5.535 4.5 7.175V21.5l3-1.75c1.11.235 2.28.35 3.5.35 6.075 0 11-4.03 11-9s-4.925-9-11-9z"/></svg>
-                        <span>Sign In with WeChat</span>
-                    </button>
+                <div class="form-input-element">
+                    <label>Display Name</label>
+                    <input type="text" id="login-name-input" placeholder="e.g., Rahul Verma">
                 </div>
+                <button class="master-action-btn" onclick="executePermanentLogin()">Login / Register</button>
             </div>
         </div>
     </div>
@@ -50,68 +46,86 @@
                 <button id="add-moment-btn" class="icon-action-btn hidden" onclick="openScreen('screen-create-moment')">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
-                <button id="header-settings-btn" class="icon-action-btn" onclick="triggerSettingsPanel()">
+                
+                <div id="contact-menu-wrapper" class="menu-context-container hidden">
+                    <button class="icon-action-btn" onclick="toggleThreeDotMenu()">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                    </button>
+                    <div id="threedot-dropdown" class="dropdown-bubble-menu hidden">
+                        <a href="#" onclick="triggerMenuAction('add')">Add Friend by UID</a>
+                        <a href="#" onclick="triggerMenuAction('scan')">Scan QR Code</a>
+                        <a href="#" onclick="triggerMenuAction('group')">Create Group Chat</a>
+                    </div>
+                </div>
+
+                <button id="header-settings-btn" class="icon-action-btn hidden" onclick="openScreen('screen-settings-page')">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </button>
             </div>
         </header>
 
+        <input type="file" id="hidden-camera-input" accept="image/*" capture="environment" class="hidden" onchange="processFakeQRScan()">
+        <input type="file" id="hidden-gallery-input" accept="image/*" class="hidden" onchange="processFakeQRScan()">
+        <input type="file" id="hidden-pfp-input" accept="image/*" class="hidden" onchange="processProfilePictureUpload()">
+        <input type="file" id="hidden-moment-media" accept="image/*,video/*" class="hidden" onchange="handleMomentMediaSelection()">
+
         <main class="app-viewport-content">
             
             <section id="screen-chat" class="app-tab-panel">
-                <div id="chats-list-container" class="scrollable-list-grid">
-                    <div class="empty-vector-slate">No active chat sessions. Search and connect with peers.</div>
-                </div>
+                <div id="chats-list-container" class="scrollable-list-grid"></div>
             </section>
 
             <section id="screen-chat-window" class="app-tab-panel" style="display: none;">
+                <div id="reply-context-banner" class="reply-preview-bar hidden">
+                    <span id="reply-banner-text">Replying to...</span>
+                    <button onclick="cancelReplyContext()">✕</button>
+                </div>
                 <div class="conversation-vessel" id="chat-messages-box"></div>
                 <div class="interactive-input-row">
                     <input type="text" id="chat-type-input" placeholder="Type a message...">
+                    <button class="emoji-toggle-btn" onclick="toggleEmojiTray()">🌟</button>
                     <button class="send-dispatch-btn" onclick="dispatchMessage()">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </div>
+                <div id="app-emoji-tray" class="emoji-tray-drawer hidden">
+                    <span onclick="insertEmoji('🔥')">🔥</span><span onclick="insertEmoji('💎')">💎</span>
+                    <span onclick="insertEmoji('👑')">👑</span><span onclick="insertEmoji('⚡')">⚡</span>
+                    <span onclick="insertEmoji('🍀')">🍀</span><span onclick="insertEmoji('🪐')">🪐</span>
+                    <span onclick="insertEmoji('🧩')">🧩</span><span onclick="insertEmoji('🛸')">🛸</span>
+                </div>
             </section>
 
             <section id="screen-contact" class="app-tab-panel" style="display: none;">
-                <div class="search-terminal-header">
-                    <div class="search-field-bar">
-                        <input type="text" id="search-friend-id" placeholder="Enter target User UID...">
-                        <button class="search-icon-btn-trigger" onclick="searchAndQueryProfile()">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </button>
-                    </div>
-                    <button class="qr-scanner-mock-btn" onclick="simulateQRScannerInput()" title="Scan QR Code">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
-                    </button>
-                </div>
-
                 <div id="queried-profile-card-popup" class="profile-preview-card-wrapper hidden">
                     <div class="preview-avatar"></div>
                     <h4 id="query-card-name">User Node</h4>
                     <p id="query-card-uid">UID: unknown</p>
-                    <span id="query-card-country" class="badge-country">Global</span>
                     <div class="action-btn-row">
-                        <button id="query-btn-friend" class="action-core-btn accent-green" onclick="executeAddFriendFromQuery()">Add Friend</button>
-                        <button id="query-btn-msg" class="action-core-btn accent-light" onclick="executeMessageFromQuery()">Message</button>
+                        <button class="action-core-btn accent-green" onclick="executeAddFriendFromQuery()">Send Friend Request</button>
                     </div>
                 </div>
 
-                <div class="contact-divider-label">My Contacts</div>
+                <div class="contact-divider-label">Pending Requests (<span id="request-count-label">0</span>)</div>
+                <div id="incoming-requests-panel" class="scrollable-list-grid"></div>
+
+                <div class="contact-divider-label">My Friends</div>
                 <div id="contacts-list-container" class="scrollable-list-grid"></div>
             </section>
 
             <section id="screen-moment" class="app-tab-panel" style="display: none;">
-                <div class="moments-premium-scroller" id="moments-feed-wall">
-                    </div>
+                <div class="moments-premium-scroller" id="moments-feed-wall"></div>
             </section>
 
             <section id="screen-create-moment" class="app-tab-panel" style="display: none;">
                 <div class="composer-vessel">
-                    <textarea id="post-caption" placeholder="What's on your mind? Share a moment..." rows="4"></textarea>
+                    <textarea id="post-caption" placeholder="Share anything..." rows="4"></textarea>
+                    <div id="moment-media-preview" class="media-preview-box hidden"></div>
+                    <div class="media-attach-trigger" onclick="document.getElementById('hidden-moment-media').click()">
+                        📎 Attach Photo / Video
+                    </div>
                     <div class="composer-button-group">
-                        <button class="btn-confirm-post" onclick="publishPost()">Post Moment</button>
+                        <button class="btn-confirm-post" onclick="publishPost()">Post</button>
                         <button class="btn-abort-post" onclick="backToMoments()">Cancel</button>
                     </div>
                 </div>
@@ -120,11 +134,11 @@
             <section id="screen-profile" class="app-tab-panel" style="display: none;">
                 <div class="user-identity-card-block">
                     <div class="identity-card-header">
-                        <div class="identity-avatar-placeholder"></div>
+                        <div id="profile-pfp-display" class="identity-avatar-placeholder" onclick="document.getElementById('hidden-pfp-input').click()"></div>
                         <div class="identity-text-details">
                             <h3 id="profile-lbl-name">Authorized Node</h3>
                             <p id="profile-lbl-id">UID: ---</p>
-                            <span id="profile-lbl-country" class="country-pill-tag">Global</span>
+                            <span id="profile-lbl-country" class="country-pill-tag">India</span>
                         </div>
                         <button class="edit-profile-action-trigger" onclick="toggleEditProfileModal()">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -133,26 +147,63 @@
 
                     <div id="profile-edit-submodal" class="profile-editor-drawer hidden">
                         <div class="form-input-element">
-                            <label>Update Display Name</label>
-                            <input type="text" id="input-edit-displayname" value="">
+                            <label>Change Unique UID</label>
+                            <input type="text" id="input-edit-uid">
                         </div>
                         <div class="form-input-element">
-                            <label>Update Region / Country</label>
-                            <select id="input-edit-country">
-                                </select>
+                            <label>Change Name</label>
+                            <input type="text" id="input-edit-displayname">
                         </div>
-                        <button class="save-profile-btn" onclick="saveProfileChanges()">Apply System Modifications</button>
+                        <div class="form-input-element">
+                            <label>Update Country</label>
+                            <select id="input-edit-country"></select>
+                        </div>
+                        <button class="save-profile-btn" onclick="saveProfileChanges()">Save Modifications</button>
                     </div>
 
                     <div class="personal-qr-wrapper-card">
-                        <h4>My Personal Matrix QR Code</h4>
+                        <h4>My Identity Matrix QR</h4>
                         <div id="qrcode-display-canvas"></div>
-                        <p>Allow peers to scan your code to bridge secure channels instantly</p>
+                        <button class="save-qr-gallery-btn" onclick="downloadQRCodeToGallery()">⬇ Save QR Code to Gallery</button>
                     </div>
                 </div>
             </section>
 
+            <section id="screen-settings-page" class="app-tab-panel" style="display: none;">
+                <div class="settings-view-list">
+                    <div class="setting-item-row" onclick="alert('Profile configurations linked to primary block modification icon.')">
+                        <h4>Edit Profile Options</h4>
+                        <p>Manage node headers, avatars and geographical sectors.</p>
+                    </div>
+                    <div class="setting-item-row">
+                        <div style="flex:1;">
+                            <h4>In-App Notifications</h4>
+                            <p>Toggle systemic alerts and sound effects logs.</p>
+                        </div>
+                        <input type="checkbox" id="setting-toggle-notif" checked style="width:20px; height:20px;">
+                    </div>
+                    <div class="setting-item-row" onclick="alert('Support System: Raise queries directly at support@stardust.io')">
+                        <h4>Customer Support Helpdesk</h4>
+                        <p>Troubleshoot channel errors or persistent database issues.</p>
+                    </div>
+                    <div class="setting-item-row" onclick="triggerLogout()">
+                        <h4 style="color:#ef4444;">Disconnect & De-authorize Node</h4>
+                        <p>Wipe dynamic cryptographic session keys from active platform.</p>
+                    </div>
+                </div>
+                <button class="save-profile-btn" style="margin-top:20px; background:#667085" onclick="switchTab('screen-profile', null)">Back to Profile</button>
+            </section>
+
         </main>
+
+        <div id="message-longpress-modal" class="longpress-context-backdrop hidden" onclick="closeLongPressModal()">
+            <div class="context-action-sheet" onclick="event.stopPropagation()">
+                <div id="opt-reply" class="sheet-item" onclick="handleContextAction('reply')">Reply Message</div>
+                <div id="opt-copy" class="sheet-item" onclick="handleContextAction('copy')">Copy Text</div>
+                <div id="opt-react" class="sheet-item" onclick="handleContextAction('react')">React Flame (🔥)</div>
+                <div id="opt-edit" class="sheet-item hidden" onclick="handleContextAction('edit')">Edit Message</div>
+            </div>
+        </div>
 
         <nav class="fixed-dock-navigation">
             <button class="dock-nav-item active-dock-tab" onclick="switchTab('screen-chat', this)">
@@ -160,6 +211,7 @@
             </button>
             <button class="dock-nav-item" onclick="switchTab('screen-contact', this)">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span id="badge-nav-contact" class="numeric-badge-alert hidden">0</span>
             </button>
             <button class="dock-nav-item" onclick="switchTab('screen-moment', this)">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 6 12 12 16 14"></polygon></svg>
@@ -170,6 +222,14 @@
                 <span id="badge-nav-chat" class="numeric-badge-alert hidden">0</span>
             </button>
         </nav>
+    </div>
+
+    <div id="scan-option-modal" class="longpress-context-backdrop hidden" onclick="this.classList.add('hidden')">
+        <div class="context-action-sheet" onclick="event.stopPropagation()">
+            <h4 style="padding:14px; text-align:center; font-size:14px; border-bottom:1px solid #e4e7ec;">Select QR Input Channel</h4>
+            <div class="sheet-item" onclick="triggerHardwareScanner('camera')">Launch Camera Interface</div>
+            <div class="sheet-item" onclick="triggerHardwareScanner('gallery')">Select from Device Gallery</div>
+        </div>
     </div>
 
     <script src="./script.js"></script>
