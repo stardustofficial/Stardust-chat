@@ -31,7 +31,6 @@ body {
 .brand-identity h2 { font-size: 28px; font-weight: 800; color: #1b5e20; }
 .brand-identity p { font-size: 13px; color: #667085; margin-top: 6px; }
 
-/* OAuth Button UI blocks */
 .auth-action-area { display: flex; flex-direction: column; gap: 12px; }
 .oauth-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; border: 1px solid #d0d5dd; background: #ffffff; }
 .oauth-btn img { width: 20px; height: 20px; object-fit: contain; }
@@ -50,7 +49,6 @@ body {
 
 .app-viewport-content { margin-top: 60px; margin-bottom: 75px; flex: 1; overflow-y: auto; width: 100vw; padding: 14px; }
 
-/* Fixed Navigation Bottom Layout Frame updates with text support tags */
 .fixed-dock-navigation { position: fixed; bottom: 0; left: 0; width: 100vw; height: 75px; background: #ffffff; border-top: 1px solid #e4e7ec; display: flex; align-items: center; justify-content: space-around; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
 .dock-nav-item { background: transparent; border: none; color: #667085; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; gap: 4px; width: 22%; height: 100%; }
 .dock-nav-item.active-dock-tab { color: #2e7d32; }
