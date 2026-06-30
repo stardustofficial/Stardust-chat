@@ -36,7 +36,7 @@ window.onload = function() {
 }
 
 function executeMockOAuth(provider) {
-    // Generate Fixed Unique parameters directly mapping provider nodes
+    console.log("OAuth Triggered for:", provider); // Debugging log
     const mockHash = Math.floor(1000 + Math.random() * 9000);
     currentUserId = provider.toLowerCase() + "_" + mockHash;
     currentUserName = provider + " User " + mockHash;
@@ -50,38 +50,56 @@ function executeMockOAuth(provider) {
 }
 
 function launchApplicationShell() {
-    socket.emit('register_user', { userId: currentUserId, displayName: currentUserName, country: currentUserCountry });
+    // Socket connection establish karna
+    if(socket && socket.emit) {
+        socket.emit('register_user', { userId: currentUserId, displayName: currentUserName, country: currentUserCountry });
+    }
 
+    // Screens toggle karna
     document.getElementById('login-screen').style.display = "none";
     document.getElementById('main-app').style.display = "flex";
 
+    // UI elements update karna
     updateProfileDOMSelectors();
 
+    // Country Dropdown safe check ke sath fill karna
     const dropdown = document.getElementById('input-edit-country');
-    dropdown.innerHTML = `
-        <option value="India">India</option>
-        <option value="United States">United States</option>
-        <option value="United Kingdom">United Kingdom</option>
-    `;
-    dropdown.value = currentUserCountry;
+    if (dropdown) {
+        dropdown.innerHTML = `
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+        `;
+        dropdown.value = currentUserCountry;
+    }
 
-    document.getElementById('qrcode-display-canvas').innerHTML = "";
-    new QRCode(document.getElementById('qrcode-display-canvas'), { text: currentUserId, width: 130, height: 130 });
+    // QR Code container reset aur render karna
+    const qrContainer = document.getElementById('qrcode-display-canvas');
+    if (qrContainer) {
+        qrContainer.innerHTML = "";
+        try {
+            new QRCode(qrContainer, { text: currentUserId, width: 130, height: 130 });
+        } catch (e) {
+            console.log("QR Code script not loaded yet, skipping visual generation.");
+        }
+    }
 
+    // Saari lists fresh render karna
     renderContactsList();
     renderChatsList();
     renderMomentsWallFeed();
 
+    // Default chat screen par switch karna
     switchTab('screen-chat', document.querySelectorAll('.dock-nav-item')[0]);
 }
 
 function updateProfileDOMSelectors() {
-    document.getElementById('profile-lbl-name').innerText = currentUserName;
-    document.getElementById('profile-lbl-id').innerText = "UID: " + currentUserId;
-    document.getElementById('profile-lbl-country').innerText = currentUserCountry;
-    document.getElementById('profile-pfp-display').style.backgroundImage = `url('${currentUserPfp}')`;
-    document.getElementById('input-edit-displayname').value = currentUserName;
-    document.getElementById('input-edit-uid').value = currentUserId;
+    if(document.getElementById('profile-lbl-name')) document.getElementById('profile-lbl-name').innerText = currentUserName;
+    if(document.getElementById('profile-lbl-id')) document.getElementById('profile-lbl-id').innerText = "UID: " + currentUserId;
+    if(document.getElementById('profile-lbl-country')) document.getElementById('profile-lbl-country').innerText = currentUserCountry;
+    if(document.getElementById('profile-pfp-display')) document.getElementById('profile-pfp-display').style.backgroundImage = `url('${currentUserPfp}')`;
+    if(document.getElementById('input-edit-displayname')) document.getElementById('input-edit-displayname').value = currentUserName;
+    if(document.getElementById('input-edit-uid')) document.getElementById('input-edit-uid').value = currentUserId;
 }
 
 function switchTab(screenId, btnElement) {
@@ -155,13 +173,15 @@ function executeAddFriendFromQuery() {
     alert("Inbound link trace request sent successfully.");
 }
 
-socket.on('incoming_friend_alert', (data) => {
-    if(!pendingRequests.includes(data.senderId) && !addedFriends.includes(data.senderId)) {
-        pendingRequests.push(data.senderId);
-        renderPendingRequestsPanel();
-        triggerInAppNotificationSound();
-    }
-});
+if(socket) {
+    socket.on('incoming_friend_alert', (data) => {
+        if(!pendingRequests.includes(data.senderId) && !addedFriends.includes(data.senderId)) {
+            pendingRequests.push(data.senderId);
+            renderPendingRequestsPanel();
+            triggerInAppNotificationSound();
+        }
+    });
+}
 
 function renderPendingRequestsPanel() {
     const panel = document.getElementById('incoming-requests-panel');
@@ -304,17 +324,19 @@ function appendVisualMessageNodeToVessel(payload) {
     box.scrollTop = box.scrollHeight;
 }
 
-socket.on('receive_private_message', (data) => {
-    saveIncomingMessageToLocalDatabase(data.senderId, data);
-    if(activeChatTargetId === data.senderId) {
-        appendVisualMessageNodeToVessel(data);
-    } else {
-        triggerInAppNotificationSound();
-        const chatBadge = document.getElementById('badge-nav-chat');
-        chatBadge.innerText = (parseInt(chatBadge.innerText) || 0) + 1;
-        chatBadge.classList.remove('hidden');
-    }
-});
+if(socket) {
+    socket.on('receive_private_message', (data) => {
+        saveIncomingMessageToLocalDatabase(data.senderId, data);
+        if(activeChatTargetId === data.senderId) {
+            appendVisualMessageNodeToVessel(data);
+        } else {
+            triggerInAppNotificationSound();
+            const chatBadge = document.getElementById('badge-nav-chat');
+            chatBadge.innerText = (parseInt(chatBadge.innerText) || 0) + 1;
+            chatBadge.classList.remove('hidden');
+        }
+    });
+}
 
 // ================= SHEET LOGIC CONTEXT REPLIES =================
 function openLongPressMenuSheet(payload, direction) {
@@ -400,12 +422,14 @@ function publishPost() {
     backToMoments();
 }
 
-socket.on('new_moment_feed_update', (data) => {
-    localMomentsCache.unshift(data);
-    localStorage.setItem('stardust_db_moments', JSON.stringify(localMomentsCache));
-    renderMomentsWallFeed();
-    document.getElementById('badge-nav-moment').classList.remove('hidden');
-});
+if(socket) {
+    socket.on('new_moment_feed_update', (data) => {
+        localMomentsCache.unshift(data);
+        localStorage.setItem('stardust_db_moments', JSON.stringify(localMomentsCache));
+        renderMomentsWallFeed();
+        document.getElementById('badge-nav-moment').classList.remove('hidden');
+    });
+}
 
 function renderMomentsWallFeed() {
     const wall = document.getElementById('moments-feed-wall');
