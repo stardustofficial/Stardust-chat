@@ -18,6 +18,7 @@ let localChatsMessageCache = JSON.parse(localStorage.getItem('stardust_db_chats'
 let localMomentsCache = JSON.parse(localStorage.getItem('stardust_db_moments')) || [];
 
 window.onload = function() {
+    // 1. Restore sessions securely
     const savedUID = localStorage.getItem('stardust_uid');
     const savedName = localStorage.getItem('stardust_name');
     const savedCountry = localStorage.getItem('stardust_country');
@@ -33,10 +34,26 @@ window.onload = function() {
         currentUserName = savedName;
         launchApplicationShell();
     }
+
+    // 2. HARDWARE OVER-RIDE EVENT LISTENERS FOR CLICKS
+    const googleBtn = document.getElementById('btn-google-login');
+    const wechatBtn = document.getElementById('btn-wechat-login');
+
+    if(googleBtn) {
+        googleBtn.addEventListener('click', function() {
+            executeMockOAuth('Google');
+        });
+    }
+
+    if(wechatBtn) {
+        wechatBtn.addEventListener('click', function() {
+            executeMockOAuth('WeChat');
+        });
+    }
 }
 
 function executeMockOAuth(provider) {
-    console.log("OAuth Triggered for:", provider); // Debugging log
+    console.log("OAuth Trigger initialized successfully for node:", provider);
     const mockHash = Math.floor(1000 + Math.random() * 9000);
     currentUserId = provider.toLowerCase() + "_" + mockHash;
     currentUserName = provider + " User " + mockHash;
@@ -50,19 +67,18 @@ function executeMockOAuth(provider) {
 }
 
 function launchApplicationShell() {
-    // Socket connection establish karna
     if(socket && socket.emit) {
         socket.emit('register_user', { userId: currentUserId, displayName: currentUserName, country: currentUserCountry });
     }
 
-    // Screens toggle karna
-    document.getElementById('login-screen').style.display = "none";
-    document.getElementById('main-app').style.display = "flex";
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+    
+    if(loginScreen) loginScreen.style.display = "none";
+    if(mainApp) mainApp.style.display = "flex";
 
-    // UI elements update karna
     updateProfileDOMSelectors();
 
-    // Country Dropdown safe check ke sath fill karna
     const dropdown = document.getElementById('input-edit-country');
     if (dropdown) {
         dropdown.innerHTML = `
@@ -73,23 +89,20 @@ function launchApplicationShell() {
         dropdown.value = currentUserCountry;
     }
 
-    // QR Code container reset aur render karna
     const qrContainer = document.getElementById('qrcode-display-canvas');
     if (qrContainer) {
         qrContainer.innerHTML = "";
         try {
             new QRCode(qrContainer, { text: currentUserId, width: 130, height: 130 });
         } catch (e) {
-            console.log("QR Code script not loaded yet, skipping visual generation.");
+            console.log("QR Frame generator bypass state active.");
         }
     }
 
-    // Saari lists fresh render karna
     renderContactsList();
     renderChatsList();
     renderMomentsWallFeed();
 
-    // Default chat screen par switch karna
     switchTab('screen-chat', document.querySelectorAll('.dock-nav-item')[0]);
 }
 
@@ -110,47 +123,49 @@ function switchTab(screenId, btnElement) {
     if(target) target.style.display = "block";
     if(btnElement) btnElement.classList.add('active-dock-tab');
 
-    document.getElementById('add-moment-btn').classList.add('hidden');
-    document.getElementById('back-chat-btn').classList.add('hidden');
-    document.getElementById('contact-menu-wrapper').classList.add('hidden');
-    document.getElementById('header-settings-btn').classList.add('hidden');
+    if(document.getElementById('add-moment-btn')) document.getElementById('add-moment-btn').classList.add('hidden');
+    if(document.getElementById('back-chat-btn')) document.getElementById('back-chat-btn').classList.add('hidden');
+    if(document.getElementById('contact-menu-wrapper')) document.getElementById('contact-menu-wrapper').classList.add('hidden');
+    if(document.getElementById('header-settings-btn')) document.getElementById('header-settings-btn').classList.add('hidden');
 
     if (screenId === 'screen-moment') {
-        document.getElementById('add-moment-btn').classList.remove('hidden');
-        document.getElementById('badge-nav-moment').classList.add('hidden');
+        if(document.getElementById('add-moment-btn')) document.getElementById('add-moment-btn').classList.remove('hidden');
+        if(document.getElementById('badge-nav-moment')) document.getElementById('badge-nav-moment').classList.add('hidden');
     } else if (screenId === 'screen-contact') {
-        document.getElementById('contact-menu-wrapper').classList.remove('hidden');
+        if(document.getElementById('contact-menu-wrapper')) document.getElementById('contact-menu-wrapper').classList.remove('hidden');
     } else if (screenId === 'screen-profile') {
-        document.getElementById('header-settings-btn').classList.remove('hidden');
+        if(document.getElementById('header-settings-btn')) document.getElementById('header-settings-btn').classList.remove('hidden');
     }
 }
 
 function openScreen(screenId) {
     document.querySelectorAll('.app-tab-panel').forEach(panel => panel.style.display = "none");
-    document.getElementById(screenId).style.display = "block";
+    const target = document.getElementById(screenId);
+    if(target) target.style.display = "block";
 }
 
-// ================= CONTROLS CONFIGURATIONS SYSTEM =================
-function toggleThreeDotMenu() { document.getElementById('threedot-dropdown').classList.toggle('hidden'); }
+function toggleThreeDotMenu() { 
+    if(document.getElementById('threedot-dropdown')) document.getElementById('threedot-dropdown').classList.toggle('hidden'); 
+}
 
 function triggerMenuAction(action) {
-    document.getElementById('threedot-dropdown').classList.add('hidden');
+    if(document.getElementById('threedot-dropdown')) document.getElementById('threedot-dropdown').classList.add('hidden');
     if (action === 'add') {
         const inputId = prompt("Enter target unique user ID:");
         if(inputId && inputId.trim().toLowerCase() !== currentUserId) {
             searchAndQueryTargetUID(inputId.trim().toLowerCase());
         }
     } else if (action === 'scan') {
-        document.getElementById('scan-option-modal').classList.remove('hidden');
+        if(document.getElementById('scan-option-modal')) document.getElementById('scan-option-modal').classList.remove('hidden');
     } else if (action === 'group') {
         alert("Group Chat initialization payload active.");
     }
 }
 
 function triggerHardwareScanner(type) {
-    document.getElementById('scan-option-modal').classList.add('hidden');
-    if(type === 'camera') document.getElementById('hidden-camera-input').click();
-    else document.getElementById('hidden-gallery-input').click();
+    if(document.getElementById('scan-option-modal')) document.getElementById('scan-option-modal').classList.add('hidden');
+    if(type === 'camera' && document.getElementById('hidden-camera-input')) document.getElementById('hidden-camera-input').click();
+    else if(document.getElementById('hidden-gallery-input')) document.getElementById('hidden-gallery-input').click();
 }
 
 function processFakeQRScan() {
@@ -159,9 +174,9 @@ function processFakeQRScan() {
 }
 
 function searchAndQueryTargetUID(targetId) {
-    document.getElementById('query-card-name').innerText = "Matrix Verified Target User";
-    document.getElementById('query-card-uid').innerText = "UID: " + targetId;
-    document.getElementById('queried-profile-card-popup').classList.remove('hidden');
+    if(document.getElementById('query-card-name')) document.getElementById('query-card-name').innerText = "Matrix Verified Target User";
+    if(document.getElementById('query-card-uid')) document.getElementById('query-card-uid').innerText = "UID: " + targetId;
+    if(document.getElementById('queried-profile-card-popup')) document.getElementById('queried-profile-card-popup').classList.remove('hidden');
 }
 
 function executeAddFriendFromQuery() {
@@ -169,7 +184,7 @@ function executeAddFriendFromQuery() {
     if(addedFriends.includes(rawUIDText)) return alert("Node linked previously.");
 
     socket.emit('send_friend_request', { senderId: currentUserId, targetUserId: rawUIDText });
-    document.getElementById('queried-profile-card-popup').classList.add('hidden');
+    if(document.getElementById('queried-profile-card-popup')) document.getElementById('queried-profile-card-popup').classList.add('hidden');
     alert("Inbound link trace request sent successfully.");
 }
 
@@ -185,7 +200,8 @@ if(socket) {
 
 function renderPendingRequestsPanel() {
     const panel = document.getElementById('incoming-requests-panel');
-    document.getElementById('request-count-label').innerText = pendingRequests.length;
+    if(!panel) return;
+    if(document.getElementById('request-count-label')) document.getElementById('request-count-label').innerText = pendingRequests.length;
     panel.innerHTML = "";
     
     if(pendingRequests.length === 0) return;
@@ -217,6 +233,7 @@ function acceptFriendConnection(id) {
 
 function renderContactsList() {
     const container = document.getElementById('contacts-list-container');
+    if(!container) return;
     container.innerHTML = "";
     addedFriends.forEach(f => {
         const row = document.createElement('div');
@@ -227,9 +244,9 @@ function renderContactsList() {
     });
 }
 
-// ================= STABILIZED PERMANENT CHATS LOGS =================
 function renderChatsList() {
     const container = document.getElementById('chats-list-container');
+    if(!container) return;
     container.innerHTML = "";
     if(addedFriends.length === 0) {
         container.innerHTML = `<div class="empty-vector-slate">No active chat transactions yet.</div>`;
@@ -248,9 +265,9 @@ function renderChatsList() {
 
 function openChatBox(friendId) {
     activeChatTargetId = friendId;
-    document.getElementById('main-header-title').innerText = friendId;
-    document.getElementById('back-chat-btn').classList.remove('hidden');
-    document.getElementById('chat-messages-box').innerHTML = "";
+    if(document.getElementById('main-header-title')) document.getElementById('main-header-title').innerText = friendId;
+    if(document.getElementById('back-chat-btn')) document.getElementById('back-chat-btn').classList.remove('hidden');
+    if(document.getElementById('chat-messages-box')) document.getElementById('chat-messages-box').innerHTML = "";
 
     const thread = localChatsMessageCache[friendId] || [];
     thread.forEach(msg => appendVisualMessageNodeToVessel(msg));
@@ -260,13 +277,14 @@ function openChatBox(friendId) {
 
 function closeChatBox() {
     activeChatTargetId = "";
-    document.getElementById('main-header-title').innerText = "Stardust";
+    if(document.getElementById('main-header-title')) document.getElementById('main-header-title').innerText = "Stardust";
     renderChatsList();
     switchTab('screen-chat', document.querySelectorAll('.dock-nav-item')[0]);
 }
 
 function dispatchMessage() {
     const input = document.getElementById('chat-type-input');
+    if(!input) return;
     const txt = input.value.trim();
     if(!txt) return;
 
@@ -288,7 +306,7 @@ function dispatchMessage() {
     
     cancelReplyContext();
     input.value = "";
-    document.getElementById('app-emoji-tray').classList.add('hidden');
+    if(document.getElementById('app-emoji-tray')) document.getElementById('app-emoji-tray').classList.add('hidden');
 }
 
 function saveIncomingMessageToLocalDatabase(key, payload) {
@@ -299,6 +317,7 @@ function saveIncomingMessageToLocalDatabase(key, payload) {
 
 function appendVisualMessageNodeToVessel(payload) {
     const box = document.getElementById('chat-messages-box');
+    if(!box) return;
     const direction = payload.senderId === currentUserId ? "outgoing" : "incoming";
 
     const wrapper = document.createElement('div');
@@ -332,21 +351,24 @@ if(socket) {
         } else {
             triggerInAppNotificationSound();
             const chatBadge = document.getElementById('badge-nav-chat');
-            chatBadge.innerText = (parseInt(chatBadge.innerText) || 0) + 1;
-            chatBadge.classList.remove('hidden');
+            if(chatBadge) {
+                chatBadge.innerText = (parseInt(chatBadge.innerText) || 0) + 1;
+                chatBadge.classList.remove('hidden');
+            }
         }
     });
 }
 
-// ================= SHEET LOGIC CONTEXT REPLIES =================
 function openLongPressMenuSheet(payload, direction) {
     selectedMessageElementId = { id: payload.id, text: payload.message, user: payload.senderId };
-    document.getElementById('opt-edit').classList.add('hidden');
-    if(direction === 'outgoing') document.getElementById('opt-edit').classList.remove('hidden');
-    document.getElementById('message-longpress-modal').classList.remove('hidden');
+    if(document.getElementById('opt-edit')) document.getElementById('opt-edit').classList.add('hidden');
+    if(direction === 'outgoing' && document.getElementById('opt-edit')) document.getElementById('opt-edit').classList.remove('hidden');
+    if(document.getElementById('message-longpress-modal')) document.getElementById('message-longpress-modal').classList.remove('hidden');
 }
 
-function closeLongPressModal() { document.getElementById('message-longpress-modal').classList.add('hidden'); }
+function closeLongPressModal() { 
+    if(document.getElementById('message-longpress-modal')) document.getElementById('message-longpress-modal').classList.add('hidden'); 
+}
 
 function handleContextAction(action) {
     closeLongPressModal();
@@ -356,8 +378,8 @@ function handleContextAction(action) {
         navigator.clipboard.writeText(selectedMessageElementId.text);
     } else if(action === 'reply') {
         activeReplyContextObject = selectedMessageElementId.text;
-        document.getElementById('reply-banner-text').innerText = `Replying: "${selectedMessageElementId.text}"`;
-        document.getElementById('reply-context-banner').classList.remove('hidden');
+        if(document.getElementById('reply-banner-text')) document.getElementById('reply-banner-text').innerText = `Replying: "${selectedMessageElementId.text}"`;
+        if(document.getElementById('reply-context-banner')) document.getElementById('reply-context-banner').classList.remove('hidden');
     } else if(action === 'react') {
         alert("Reaction data injected.");
     } else if(action === 'edit') {
@@ -376,13 +398,12 @@ function handleContextAction(action) {
 
 function cancelReplyContext() {
     activeReplyContextObject = null;
-    document.getElementById('reply-context-banner').classList.add('hidden');
+    if(document.getElementById('reply-context-banner')) document.getElementById('reply-context-banner').classList.add('hidden');
 }
 
-function toggleEmojiTray() { document.getElementById('app-emoji-tray').classList.toggle('hidden'); }
-function insertVectorAsset(asset) { document.getElementById('chat-type-input').value += asset; }
+function toggleEmojiTray() { if(document.getElementById('app-emoji-tray')) document.getElementById('app-emoji-tray').classList.toggle('hidden'); }
+function insertVectorAsset(asset) { if(document.getElementById('chat-type-input')) document.getElementById('chat-type-input').value += asset; }
 
-// ================= MOMENTS ATTACHMENTS PIPELINES =================
 function handleMomentMediaSelection() {
     const file = document.getElementById('hidden-moment-media').files[0];
     if(!file) return;
@@ -391,14 +412,17 @@ function handleMomentMediaSelection() {
     reader.onload = function(e) {
         currentSelectedMomentAttachment = e.target.result;
         const targetView = document.getElementById('moment-media-preview');
-        targetView.innerHTML = file.type.includes('video') ? `<video src="${currentSelectedMomentAttachment}" autoplay muted loop></video>` : `<img src="${currentSelectedMomentAttachment}">`;
-        targetView.classList.remove('hidden');
+        if(targetView) {
+            targetView.innerHTML = file.type.includes('video') ? `<video src="${currentSelectedMomentAttachment}" autoplay muted loop></video>` : `<img src="${currentSelectedMomentAttachment}">`;
+            targetView.classList.remove('hidden');
+        }
     }
     reader.readAsDataURL(file);
 }
 
 function publishPost() {
-    const cap = document.getElementById('post-caption').value.trim();
+    const txtArea = document.getElementById('post-caption');
+    const cap = txtArea ? txtArea.value.trim() : "";
     if(!cap && !currentSelectedMomentAttachment) return;
 
     const postPayload = {
@@ -414,8 +438,8 @@ function publishPost() {
     localMomentsCache.unshift(postPayload);
     localStorage.setItem('stardust_db_moments', JSON.stringify(localMomentsCache));
 
-    document.getElementById('post-caption').value = "";
-    document.getElementById('moment-media-preview').classList.add('hidden');
+    if(txtArea) txtArea.value = "";
+    if(document.getElementById('moment-media-preview')) document.getElementById('moment-media-preview').classList.add('hidden');
     currentSelectedMomentAttachment = null;
 
     renderMomentsWallFeed();
@@ -427,12 +451,13 @@ if(socket) {
         localMomentsCache.unshift(data);
         localStorage.setItem('stardust_db_moments', JSON.stringify(localMomentsCache));
         renderMomentsWallFeed();
-        document.getElementById('badge-nav-moment').classList.remove('hidden');
+        if(document.getElementById('badge-nav-moment')) document.getElementById('badge-nav-moment').classList.remove('hidden');
     });
 }
 
 function renderMomentsWallFeed() {
     const wall = document.getElementById('moments-feed-wall');
+    if(!wall) return;
     wall.innerHTML = "";
     
     if(localMomentsCache.length === 0) {
@@ -478,8 +503,7 @@ function appendCommentToMoment(id) {
 
 function backToMoments() { switchTab('screen-moment', document.querySelectorAll('.dock-nav-item')[2]); }
 
-// ================= PROFILE RE-BIND STABILITY CONTROLS =================
-function toggleEditProfileModal() { document.getElementById('profile-edit-submodal').classList.toggle('hidden'); }
+function toggleEditProfileModal() { if(document.getElementById('profile-edit-submodal')) document.getElementById('profile-edit-submodal').classList.toggle('hidden'); }
 
 function processProfilePictureUpload() {
     const file = document.getElementById('hidden-pfp-input').files[0];
@@ -521,8 +545,8 @@ function downloadQRCodeToGallery() {
 }
 
 function triggerInAppNotificationSound() {
-    if(document.getElementById('setting-toggle-notif').checked) {
-        document.getElementById('notif-sound-msg').play().catch(()=>{});
+    if(document.getElementById('setting-toggle-notif') && document.getElementById('setting-toggle-notif').checked) {
+        if(document.getElementById('notif-sound-msg')) document.getElementById('notif-sound-msg').play().catch(()=>{});
     }
 }
 
